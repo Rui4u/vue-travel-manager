@@ -27,8 +27,8 @@ export default {
   data() {
     return {
       loginForm: {
-        username: '沙师傅',
-        password: '13552770000'
+        username: '沙师',
+        password: '13552770003'
       },
       loginFromRules: {
         // 验证用户名是否合法
@@ -66,13 +66,13 @@ export default {
         const {
           data: res
         } = await this.$http.post('managerLoginIn', this.loginForm)
-
-        if (res.errno == '0') {
-          return this.$message.success(res.errmsg)
-        } else {
+        if (res.errno != '0') {
           return this.$message.error(res.errmsg)
         }
 
+        this.$message.success(res.errmsg)
+        window.sessionStorage.setItem("token", res.data.userId)
+        this.$router.push('/home')
       });
     }
   }
