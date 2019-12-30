@@ -1,25 +1,35 @@
 <template>
-<div class="login_contarner">
-  <div class="login_box">
-    <!-- 头像 -->
-    <div class="avater_box">
-      <img src="../assets/logo.png" alt="">
+  <div class="login_contarner">
+    <div class="login_box">
+      <!-- 头像 -->
+      <div class="avater_box">
+        <img src="../assets/logo.png" alt />
+      </div>
+      <!-- 登录表单 -->
+      <el-form
+        ref="loginFormRef"
+        :model="loginForm"
+        :rules="loginFromRules"
+        label-width="0px"
+        class="login_form"
+      >
+        <el-form-item prop="username">
+          <el-input v-model="loginForm.username" prefix-icon="iconfont icon-user"></el-input>
+        </el-form-item>
+        <el-form-item prop="password">
+          <el-input
+            v-model="loginForm.password"
+            prefix-icon="iconfont icon-3702mima"
+            type="password"
+          ></el-input>
+        </el-form-item>
+        <el-form-item class="btns">
+          <el-button type="primary" @click="login">登录</el-button>
+          <el-button type="info" @click="resetLoginForm">重置</el-button>
+        </el-form-item>
+      </el-form>
     </div>
-    <!-- 登录表单 -->
-    <el-form ref="loginFormRef" :model="loginForm" :rules="loginFromRules" label-width="0px" class="login_form">
-      <el-form-item prop="username">
-        <el-input v-model="loginForm.username" prefix-icon="iconfont icon-user"></el-input>
-      </el-form-item>
-      <el-form-item prop="password">
-        <el-input v-model="loginForm.password" prefix-icon="iconfont icon-3702mima" type="password"></el-input>
-      </el-form-item>
-      <el-form-item class="btns">
-        <el-button type="primary" @click="login">登录</el-button>
-        <el-button type="info" @click="resetLoginForm">重置</el-button>
-      </el-form-item>
-    </el-form>
   </div>
-</div>
 </template>
 
 <script>
@@ -32,13 +42,16 @@ export default {
       },
       loginFromRules: {
         // 验证用户名是否合法
-        username: [{
-          required: true,
-          message: '请输入登录名称',
-          trigger: 'blur'
-        }, ],
+        username: [
+          {
+            required: true,
+            message: '请输入登录名称',
+            trigger: 'blur'
+          }
+        ],
         // 验证密码是否合法
-        password: [{
+        password: [
+          {
             required: true,
             message: '请输入登录密码',
             trigger: 'blur'
@@ -48,8 +61,8 @@ export default {
             max: 12,
             message: '长度在 10 到 12 个字符',
             trigger: 'blur'
-          },
-        ],
+          }
+        ]
       }
     }
   },
@@ -61,19 +74,20 @@ export default {
     login() {
       //预验证
       this.$refs.loginFormRef.validate(async valid => {
-        if (!valid) return;
+        if (!valid) return
 
-        const {
-          data: res
-        } = await this.$http.post('managerLoginIn', this.loginForm)
+        const { data: res } = await this.$http.post(
+          'manager/loginIn',
+          this.loginForm
+        )
         if (res.errno != '0') {
           return this.$message.error(res.errmsg)
         }
-
+        console.log(res)
         this.$message.success(res.errmsg)
-        window.sessionStorage.setItem("token", res.data.userId)
+        window.sessionStorage.setItem('token', res.data.userId)
         this.$router.push('/home')
-      });
+      })
     }
   }
 }
@@ -122,7 +136,6 @@ export default {
   bottom: 0px;
   padding: 0 10px;
   box-sizing: border-box;
-
 }
 
 .btns {
