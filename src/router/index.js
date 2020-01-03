@@ -4,6 +4,11 @@ import Login from '../components/Login.vue'
 import Home from '../components/Home.vue'
 import Welecome from '../components/Welecome.vue'
 import Users from '../components/Users/Users.vue'
+import Leaders from '../components/Users/Leaders.vue'
+import Managers from '../components/Users/Managers.vue'
+import Flights from '../components/Trips/Flights.vue'
+import Trips from '../components/Trips/Trips.vue'
+import Hotels from '../components/Hotels/Hotels.vue'
 
 Vue.use(VueRouter)
 
@@ -27,7 +32,22 @@ const routes = [{
         }, {
             path: '/users',
             component: Users
-        }]
+        }, {
+            path: '/leaders',
+            component: Leaders
+        }, {
+            path: '/managers',
+            component: Managers
+        }, {
+            path: '/flights',
+            component: Flights
+        }, {
+            path: '/trips',
+            component: Trips
+        }, {
+            path: '/hotels',
+            component: Hotels
+        }, ]
     }
 
 ]
