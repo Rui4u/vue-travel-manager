@@ -9,6 +9,7 @@ import Managers from '../components/Users/Managers.vue'
 import Flights from '../components/Trips/Flights.vue'
 import Trips from '../components/Trips/Trips.vue'
 import Hotels from '../components/Hotels/Hotels.vue'
+import HotelNear from '../components/Hotels/HotelNear.vue'
 
 Vue.use(VueRouter)
 
@@ -47,6 +48,9 @@ const routes = [{
         }, {
             path: '/hotels',
             component: Hotels
+        }, {
+            path: '/hotelNear',
+            component: HotelNear
         }, ]
     }
 

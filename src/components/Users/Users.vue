@@ -32,7 +32,9 @@
         <el-table-column type="index"></el-table-column>
         <el-table-column label="姓名" prop="name"></el-table-column>
         <el-table-column label="电话" prop="mobile"></el-table-column>
-        <el-table-column label="性别" prop="sex"></el-table-column>
+        <el-table-column label="性别">
+          <template slot-scope="scope">{{scope.row.sex == 1 ? '男': '女'}}</template>
+        </el-table-column>
         <el-table-column label="用户id" prop="userId"></el-table-column>
         <el-table-column label="领队状态">
           <template slot-scope="scope">
@@ -54,7 +56,12 @@
               @click="showEditDialog(scope.row.userId)"
             ></el-button>
             <!-- 删除 -->
-            <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeUesrByUserId(scope.row.userId)"></el-button>
+            <el-button
+              type="danger"
+              icon="el-icon-delete"
+              size="mini"
+              @click="removeUesrByUserId(scope.row.userId)"
+            ></el-button>
             <el-tooltip effect="dark" content="分配角色" placement="top" :enterable="false">
               <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
             </el-tooltip>
@@ -209,7 +216,7 @@ export default {
           {
             min: 1,
             max: 20,
-            message: '用户名长度在1-20之间',
+            message: '用户名长度在1-20之间'
           }
         ],
         userId: [
@@ -221,7 +228,7 @@ export default {
           {
             min: 1,
             max: 6,
-            message: '用ID长度在1-6之间',
+            message: '用ID长度在1-6之间'
           }
         ],
         mobile: [
@@ -348,25 +355,31 @@ export default {
       })
     },
     // 根据id 删除用户信息
-   async removeUesrByUserId(userId) {
-       const confirmResult = await this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+    async removeUesrByUserId(userId) {
+      const confirmResult = await this.$confirm(
+        '此操作将永久删除该用户, 是否继续?',
+        '提示',
+        {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
-        }).catch(err=>err);
-         //取消 
-        if (confirmResult !== 'confirm'){
-          return this.$message.info('已取消删除')
         }
+      ).catch(err => err)
+      //取消
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
 
-        const { data: res } = await this.$http.post('/user/delete', {'userId':userId})
-        if (res.errno != '0') {
-          return this.$message.error(res.errmsg)
-        }
-        this.editDialogVisible = false
-        this.getUserList()
-        console.log(res)
-        this.$message.success(res.errmsg)
+      const { data: res } = await this.$http.post('/user/delete', {
+        userId: userId
+      })
+      if (res.errno != '0') {
+        return this.$message.error(res.errmsg)
+      }
+      this.editDialogVisible = false
+      this.getUserList()
+      console.log(res)
+      this.$message.success(res.errmsg)
     }
   }
 }
