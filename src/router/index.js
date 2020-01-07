@@ -7,7 +7,9 @@ import Users from '../components/Users/Users.vue'
 import Leaders from '../components/Users/Leaders.vue'
 import Managers from '../components/Users/Managers.vue'
 import Flights from '../components/Trips/Flights.vue'
-import Trips from '../components/Trips/Trips.vue'
+import Trips from '../components/Trips/DaysTrips.vue'
+import Route from '../components/Trips/Route.vue'
+import GroupTrips from '../components/Trips/GroupTrips.vue'
 import Hotels from '../components/Hotels/Hotels.vue'
 import HotelNear from '../components/Hotels/HotelNear.vue'
 
@@ -51,6 +53,12 @@ const routes = [{
         }, {
             path: '/hotelNear',
             component: HotelNear
+        }, {
+            path: '/routes',
+            component: Route
+        }, {
+            path: '/groupTrips',
+            component: GroupTrips
         }, ]
     }
 

@@ -459,7 +459,7 @@ export default {
     },
     // 展示用户编辑的对话框
     async showFlightEditDialog(flightId) {
-      const { data: res } = await this.$http.get('/mg/getFlight', {
+      const { data: res } = await this.$http.get('/getFlight', {
         params: { flightId: flightId }
       })
       if (res.errno != '0') {
