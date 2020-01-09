@@ -58,8 +58,13 @@
               size="mini"
               @click="removeFlightById(scope.row.flightId)"
             ></el-button>
-            <el-tooltip effect="dark" content="分配角色" placement="top" :enterable="false">
-              <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
+            <el-tooltip effect="dark" content="查看用户" placement="top" :enterable="false">
+              <el-button
+                type="success"
+                icon="el-icon-user"
+                size="mini"
+                @click="checkFlightAllUser(scope.row)"
+              ></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -202,8 +207,7 @@ export default {
       // 修改对话框
       editDialogVisible: false,
       // 添加表单
-      addFrom: {
-      },
+      addFrom: {},
       //添加表单规则
       addFromRules: {
         flightName: [
@@ -414,6 +418,16 @@ export default {
     this.getAllFlightList()
   },
   methods: {
+    // 查看航班人员
+    checkFlightAllUser(flightInfo) {
+      this.$router.push({
+        path: '/flightUser',
+        query: {
+          flightId: flightInfo.flightId,
+          flightName: flightInfo.flightName
+        }
+      })
+    },
     async getAllFlightList() {
       const { data: res } = await this.$http.get('/mg/getAllFlights', {
         params: this.quertInfo

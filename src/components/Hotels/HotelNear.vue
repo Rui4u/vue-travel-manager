@@ -35,7 +35,7 @@
         <el-table-column label="花费时间" prop="siteTime"></el-table-column>
         <el-table-column label="所属酒店" prop="hotelName"></el-table-column>
 
-        <el-table-column label="操作" width="180px">
+        <el-table-column label="操作" width="120px">
           <template slot-scope="scope">
             <!-- 修改 -->
             <el-button
@@ -51,9 +51,6 @@
               size="mini"
               @click="removHotelNeartById(scope.row.id)"
             ></el-button>
-            <el-tooltip effect="dark" content="分配角色" placement="top" :enterable="false">
-              <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
-            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>

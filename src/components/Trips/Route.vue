@@ -35,7 +35,7 @@
         <el-table-column label="描述" prop="desc"></el-table-column>
         <el-table-column label="所属日程ID" prop="dayId"></el-table-column>
 
-        <el-table-column label="操作" width="180px">
+        <el-table-column label="操作" width="120px">
           <template slot-scope="scope">
             <!-- 修改 -->
             <el-button
@@ -51,9 +51,6 @@
               size="mini"
               @click="removeRouteById(scope.row.id)"
             ></el-button>
-            <el-tooltip effect="dark" content="分配角色" placement="top" :enterable="false">
-              <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
-            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
@@ -200,6 +197,14 @@ export default {
       editFrom: {}
     }
   },
+  watch: {
+    selectDayId(val) {
+      this.value = this.demo
+      this.addFrom.dayId = val
+      this.editFrom.dayId = val
+      console.log(this.addFrom)
+    }
+  },
   created() {
     this.getAllRouteList()
   },
@@ -277,6 +282,7 @@ export default {
         return this.$message.error(res.errmsg)
       }
 
+      console.log('获取编辑的行程%o',res)
       this.getAllDaysList()
       this.selectDayId = res.data.dayId
 
@@ -296,7 +302,7 @@ export default {
         if (!valid) return
 
         const { data: res } = await this.$http.post(
-          '/mg/RouteEdit',
+          '/mg/editRoute',
           this.editFrom
         )
         if (res.errno != '0') {

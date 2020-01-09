@@ -24,7 +24,7 @@
           </div>
         </el-col>
         <el-col :span="4">
-          <el-button type="primary" @click="addDialogVisible = true">添加用户</el-button>
+          <el-button type="primary" @click="getUserReadyInfo">添加用户</el-button>
         </el-col>
       </el-row>
       <!-- 用户列表区 -->
@@ -46,7 +46,29 @@
             <el-switch v-model="scope.row.manager" @change="userManagerStateChanged(1,scope.row)"></el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180px">
+        <el-table-column label="航班信息">
+          <template slot-scope="scope">
+            <div class="flightInfoDiv" v-for="(item, index) in scope.row.flights" :key="index">
+              <label>{{item.flightName}}</label>
+              <label>{{'出发时间 :' + item.departureDate + '/' + item.departureTime}}</label>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="酒店信息">
+          <template slot-scope="scope">
+            <div class="flightInfoDiv" v-for="(item, index) in scope.row.hotels" :key="index">
+              <label>{{item.hotelName}}</label>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="团队信息">
+          <template slot-scope="scope">
+            <div class="flightInfoDiv" v-for="(item, index) in scope.row.trips" :key="index">
+              <label>{{item.desc}}</label>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="120px">
           <template slot-scope="scope">
             <!-- 修改 -->
             <el-button
@@ -62,9 +84,6 @@
               size="mini"
               @click="removeUesrByUserId(scope.row.userId)"
             ></el-button>
-            <el-tooltip effect="dark" content="分配角色" placement="top" :enterable="false">
-              <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
-            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
@@ -99,6 +118,47 @@
         <el-form-item label="是否为领队" prop="leader">
           <el-switch v-model="addFrom.leader"></el-switch>
         </el-form-item>
+        <el-form-item label="所属航班">
+          <template>
+            <el-checkbox
+              :indeterminate="isIndeterminate"
+              v-model="checkAll"
+              @change="handleCheckAllChange"
+            >全选</el-checkbox>
+            <div style="margin: 15px 0;"></div>
+            <el-checkbox-group v-model="checkedFlights" @change="handleCheckedFlightsChange">
+              <el-checkbox
+                v-for="flight in flights"
+                :label="flight.flightId"
+                :key="flight.flightId"
+              >{{flight.flightName+'(' + flight.departureDate + ')'}}</el-checkbox>
+            </el-checkbox-group>
+          </template>
+        </el-form-item>
+        <el-form-item label="所属酒店">
+          <template>
+            <el-select v-model="selectHotelId" placeholder="请选择">
+              <el-option
+                v-for="item in hotelList"
+                :key="item.hotelId"
+                :label="item.hotelName"
+                :value="item.hotelId"
+              ></el-option>
+            </el-select>
+          </template>
+        </el-form-item>
+        <el-form-item label="所属团队">
+          <template>
+            <el-select v-model="selectTriplId" placeholder="请选择">
+              <el-option
+                v-for="item in tripList"
+                :key="item.tripId"
+                :label="item.tripDesc"
+                :value="item.tripId"
+              ></el-option>
+            </el-select>
+          </template>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addDialogVisible = false">取 消</el-button>
@@ -117,6 +177,47 @@
         <el-form-item label="手机号" prop="mobile">
           <el-input v-model="editFrom.mobile"></el-input>
         </el-form-item>
+        <el-form-item label="所属航班">
+          <template>
+            <el-checkbox
+              :indeterminate="isIndeterminate"
+              v-model="checkAll"
+              @change="handleCheckAllChange"
+            >全选</el-checkbox>
+            <div style="margin: 15px 0;"></div>
+            <el-checkbox-group v-model="checkedFlights" @change="handleCheckedFlightsChange">
+              <el-checkbox
+                v-for="flight in flights"
+                :label="flight.flightId"
+                :key="flight.flightId"
+              >{{flight.flightName+'(' + flight.departureDate + ')'}}</el-checkbox>
+            </el-checkbox-group>
+          </template>
+        </el-form-item>
+        <el-form-item label="所属酒店">
+          <template>
+            <el-select v-model="selectHotelId" placeholder="请选择">
+              <el-option
+                v-for="item in hotelList"
+                :key="item.hotelId"
+                :label="item.hotelName"
+                :value="item.hotelId"
+              ></el-option>
+            </el-select>
+          </template>
+        </el-form-item>
+        <el-form-item label="所属团队">
+          <template>
+            <el-select v-model="selectTriplId" placeholder="请选择">
+              <el-option
+                v-for="item in tripList"
+                :key="item.tripId"
+                :label="item.tripDesc"
+                :value="item.tripId"
+              ></el-option>
+            </el-select>
+          </template>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
@@ -127,6 +228,7 @@
 </template>
 
 <script>
+import { userInfo } from 'os'
 export default {
   data() {
     var checkMobile = (rule, value, cb) => {
@@ -137,6 +239,20 @@ export default {
       cb(new Error('请输入合法手机号'))
     }
     return {
+      // 选择航班
+      checkAll: false,
+      checkedFlights: [],
+      flights: [],
+      isIndeterminate: true,
+
+      // 获取酒店信息
+      hotelList: [],
+      //选择酒店的id
+      selectHotelId: '',
+      // 获取团队信息
+      tripList: [],
+      //选择团队的id
+      selectTriplId: '',
       //获取用户列表参数
       quertInfo: {
         query: '',
@@ -251,10 +367,78 @@ export default {
       }
     }
   },
+  watch: {
+    selectHotelId(val) {
+      this.value = val
+      this.addFrom.hotelId = val
+      this.editFrom.hotelId = val
+      console.log(this.addFrom)
+    },
+    selectTriplId(val) {
+      this.value = val
+      this.addFrom.tripId = val
+      this.editFrom.tripId = val
+      console.log(this.addFrom)
+    },
+    checkedFlights(val) {
+      this.value = val
+      this.addFrom.flights = val
+      this.editFrom.flights = val
+    }
+  },
   created() {
     this.getUserList()
   },
   methods: {
+    handleCheckAllChange(val) {
+      var allFlight = []
+      for (let index in this.flights) {
+        allFlight.push(this.flights[index].flightId)
+      }
+      this.checkedFlights = val ? allFlight : []
+      this.isIndeterminate = false
+    },
+    handleCheckedFlightsChange(value) {
+      let checkedCount = value.length
+      this.checkAll = checkedCount === this.flights.length
+      this.isIndeterminate =
+        checkedCount > 0 && checkedCount < this.flights.length
+      console.log(this.checkedFlights)
+    },
+    // 获取添加用户的准备信息
+    getUserReadyInfo() {
+      this.getAllHotelsMiniList()
+      this.getAllGroupMiniList()
+      this.getAllFlightMiniList()
+      this.addDialogVisible = true
+    },
+    async getAllHotelsMiniList() {
+      const { data: res } = await this.$http.get('/mg/getAllHotelsMini')
+      if (res.errno != '0') {
+        return this.$message.error(res.errmsg)
+      }
+      this.hotelList = res.data
+      console.log(res)
+    },
+
+    async getAllGroupMiniList() {
+      const { data: res } = await this.$http.get('/mg/getAllGroupTripMini')
+      if (res.errno != '0') {
+        return this.$message.error(res.errmsg)
+      }
+      this.tripList = res.data
+      console.log(res)
+    },
+
+    async getAllFlightMiniList() {
+      const { data: res } = await this.$http.get('/mg/getAllFlightsMini')
+      if (res.errno != '0') {
+        return this.$message.error(res.errmsg)
+      }
+      this.flights = res.data
+      console.log(res)
+    },
+
     async getUserList() {
       const { data: res } = await this.$http.get('manager/users', {
         params: this.quertInfo
@@ -304,6 +488,9 @@ export default {
     },
     addDialogClosed() {
       this.$refs.addFromRef.resetFields()
+      this.selectHotelId = ''
+      this.selectTriplId = ''
+      this.checkedFlights = []
     },
     //  添加用户
     addUser() {
@@ -322,22 +509,47 @@ export default {
     },
     // 展示用户编辑的对话框
     async showEditDialog(userId) {
+      this.getAllGroupMiniList()
+      this.getAllHotelsMiniList()
+      this.getAllFlightMiniList()
       console.log(userId)
       const { data: res } = await this.$http.get('/user', {
         params: { userId: userId }
       })
+      console.log(res)
       if (res.errno != '0') {
         return this.$message.error(res.errmsg)
       }
       this.editDialogVisible = true
-      this.editFrom = res.data
-      this.editFrom.userId = res.data.userId + ''
-      console.log(res)
+      var userInfo = res.data.userInfo
+
+      this.editFrom = userInfo
+      this.editFrom.userId = userInfo.userId + ''
+
+      //  调整航班信息
+      var flights = res.data.flights
+      var temp = []
+      for (let index in flights) {
+        temp.push(flights[index].flightId)
+      }
+      this.checkedFlights = temp
+      // 调整酒店
+      for (let index in res.data.hotels) {
+        this.selectHotelId = res.data.hotels[index].hotelId
+      }
+
+      // 调整酒店
+      for (let index in res.data.trips) {
+        this.selectTriplId = res.data.trips[index].tripId
+      }
       this.$message.success(res.errmsg)
     },
     // 监听修改用户对话框关闭
     editDialogClosed() {
       this.$refs.editFromRef.resetFields()
+      this.selectHotelId = ''
+      this.selectTriplId = ''
+      this.checkedFlights = []
     },
     //  编辑用户
     editUserInfo() {
@@ -385,4 +597,14 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.flightInfoDiv {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+
+  label:nth-child(1) {
+    font-weight: bold;
+    font-size: 14px;
+  }
+}
 </style>

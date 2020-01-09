@@ -29,11 +29,30 @@
       </el-row>
       <!-- 用户列表区 -->
       <el-table :data="allGroupTripList" border stripe>
-        <el-table-column type="index" label="#"></el-table-column>
-        <el-table-column label="团队描述" prop="desc"></el-table-column>       
-        <el-table-column label="团队ID" prop="tripId"></el-table-column> 
+        <el-table-column type="expand">
+          <template slot-scope="props">
+            <el-form
+              label-position="left"
+              inline
+              class="demo-table-expand"
+              v-for="(item, index) in props.row.dayList"
+              :key="index"
+            >
+              <el-form-item label>
+                <span>{{ item.tripDate }}</span>
+              </el-form-item>
+              <el-form-item label>
+                <span class="TitleSpan">{{ item.title }}</span>
+              </el-form-item>
+            </el-form>
+          </template>
+        </el-table-column>
 
-        <el-table-column label="操作" width="180px">
+        <el-table-column type="index" label="#"></el-table-column>
+        <el-table-column label="团队描述" prop="desc"></el-table-column>
+        <el-table-column label="团队ID" prop="tripId"></el-table-column>
+
+        <el-table-column label="操作" width="120px">
           <template slot-scope="scope">
             <!-- 修改 -->
             <el-button
@@ -49,9 +68,6 @@
               size="mini"
               @click="removeFlightById(scope.row.tripId)"
             ></el-button>
-            <el-tooltip effect="dark" content="分配角色" placement="top" :enterable="false">
-              <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
-            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
@@ -83,7 +99,6 @@
         <el-form-item label="团队ID" prop="tripId">
           <el-input v-model="addFrom.tripId"></el-input>
         </el-form-item>
-
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addGroupTripDialogVisible = false">取 消</el-button>
@@ -99,7 +114,6 @@
         <el-form-item label="团队ID" prop="tripId">
           <el-input v-model="editFrom.tripId" disabled></el-input>
         </el-form-item>
-       
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
@@ -112,7 +126,6 @@
 <script>
 export default {
   data() {
-   
     return {
       //获取用户列表参数
       quertInfo: {
@@ -153,7 +166,7 @@ export default {
         ]
       },
       //查询到的航班信息保存
-      editFrom: {},
+      editFrom: {}
     }
   },
   created() {
@@ -194,7 +207,10 @@ export default {
         console.log(valid)
         if (!valid) return
 
-        const { data: res } = await this.$http.post('/mg/addGroupTrip', this.addFrom)
+        const { data: res } = await this.$http.post(
+          '/mg/addGroupTrip',
+          this.addFrom
+        )
         if (res.errno != '0') {
           return this.$message.error(res.errmsg)
         }
@@ -243,7 +259,7 @@ export default {
     // 根据id,删除航班信息
     async removeFlightById(tripId) {
       const confirmResult = await this.$confirm(
-        '此操作将永久删除该用户, 是否继续?',
+        '此操作将永久删除该团队, 是否继续?',
         '提示',
         {
           confirmButtonText: '确定',
@@ -281,6 +297,9 @@ export default {
 .demo-table-expand .el-form-item {
   margin-right: 0;
   margin-bottom: 0;
-  width: 100%;
+  width: 30%;
+}
+.TitleSpan {
+  font-weight: bold;
 }
 </style>

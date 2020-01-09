@@ -26,7 +26,9 @@ import {
     Dialog,
     MessageBox,
     Select,
-    Option
+    Option,
+    Checkbox,
+    CheckboxGroup
 
 } from 'element-ui'
 
@@ -56,5 +58,8 @@ Vue.use(Pagination)
 Vue.use(Dialog)
 Vue.use(Select)
 Vue.use(Option)
+Vue.use(Checkbox)
+Vue.use(CheckboxGroup)
+
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm

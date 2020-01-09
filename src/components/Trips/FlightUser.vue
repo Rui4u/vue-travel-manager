@@ -3,8 +3,9 @@
     <!-- 面包屑导航区 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>权限管理</el-breadcrumb-item>
-      <el-breadcrumb-item>用户列表</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/flights' }">航班列表</el-breadcrumb-item>
+      <el-breadcrumb-item>{{flightName}}</el-breadcrumb-item>
+      <el-breadcrumb-item>客户名单</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 卡片视图 -->
     <el-card class="box-card">
@@ -13,7 +14,7 @@
         <el-col :span="10">
           <div class="grid-content bg-purple">
             <el-input
-              placeholder="请输入内容"
+              placeholder="请输入客户名称内容"
               class="input-with-select"
               v-model="quertInfo.query"
               clearable
@@ -29,12 +30,10 @@
         <el-table-column type="index"></el-table-column>
         <el-table-column label="姓名" prop="name"></el-table-column>
         <el-table-column label="电话" prop="mobile"></el-table-column>
-        <el-table-column label="用户id" prop="userId"></el-table-column>
-        <el-table-column label="管理员状态">
-          <template slot-scope="scope">
-            <el-switch v-model="scope.row.manager" @change="userManagerStateChanged(1,scope.row)"></el-switch>
-          </template>
+        <el-table-column label="性别">
+          <template slot-scope="scope">{{scope.row.sex == 1 ? '男': '女'}}</template>
         </el-table-column>
+        <el-table-column label="用户id" prop="userId"></el-table-column>
         <el-table-column label="操作" width="120px">
           <template slot-scope="scope">
             <!-- 修改 -->
@@ -49,7 +48,7 @@
               type="danger"
               icon="el-icon-delete"
               size="mini"
-              @click="removeUesrByUserId(scope.row.userId)"
+              @click="removeUserFromHotel(scope.row.userId)"
             ></el-button>
           </template>
         </el-table-column>
@@ -68,15 +67,28 @@
 
     <!-- 修改用户对话框 -->
     <el-dialog title="修改用户" :visible.sync="editDialogVisible" width="50%" @close="editDialogClosed">
-      <el-form :model="editFrom" :rules="editFromRules" ref="editFromRef" label-width="100px">
+      <el-form :model="editFrom" ref="editFromRef" label-width="100px">
         <el-form-item label="用户名" prop="name">
-          <el-input v-model="editFrom.name"></el-input>
+          <el-input v-model="editFrom.name" disabled></el-input>
         </el-form-item>
         <el-form-item label="用户ID" prop="userId">
           <el-input v-model="editFrom.userId" disabled></el-input>
         </el-form-item>
         <el-form-item label="手机号" prop="mobile">
-          <el-input v-model="editFrom.mobile"></el-input>
+          <el-input v-model="editFrom.mobile" disabled></el-input>
+        </el-form-item>
+
+        <el-form-item label="所属酒店">
+          <template>
+            <el-select v-model="selectflightId" placeholder="请选择">
+              <el-option
+                v-for="item in hotelList"
+                :key="item.flightId"
+                :label="item.flightName"
+                :value="item.flightId"
+              ></el-option>
+            </el-select>
+          </template>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -89,20 +101,19 @@
 
 <script>
 export default {
-  data() {
-    var checkMobile = (rule, value, cb) => {
-      const regMobile = /^(0|86|17951)?(1)[0-9]{10}$/
-      if (regMobile.test(value)) {
-        return cb()
-      }
-      cb(new Error('请输入合法手机号'))
-    }
+  data () {
     return {
+      flightName: '',
+      // 获取酒店信息
+      hotelList: [],
+      //选择酒店的id
+      selectflightId: '',
       //获取用户列表参数
       quertInfo: {
         query: '',
         pageNum: 1,
-        pageSize: 10
+        pageSize: 10,
+        flightId: ''
       },
       userList: [],
       //总页数
@@ -118,104 +129,36 @@ export default {
         manager: false,
         leader: false
       },
-      //添加表单规则
-      addFromRules: {
-        userName: [
-          {
-            required: true,
-            message: '请输入用户名',
-            trigger: 'blur'
-          },
-          {
-            min: 1,
-            max: 20,
-            message: '用户名长度在1-20之间'
-          }
-        ],
-        userId: [
-          {
-            required: true,
-            message: '请输入用户ID',
-            trigger: 'blur'
-          },
-          {
-            min: 1,
-            max: 6,
-            message: '用户ID长度在1-6之间'
-          }
-        ],
-        mobile: [
-          {
-            required: true,
-            message: '请输入手机号',
-            trigger: 'blur'
-          },
-          {
-            min: 11,
-            max: 14,
-            message: '手机号长度不正确',
-            trigger: 'blur'
-          },
-          {
-            validator: checkMobile,
-            trigger: 'blur'
-          }
-        ]
-      },
       //查询到的用户保存
-      editFrom: {},
-      //添加表单规则
-      editFromRules: {
-        name: [
-          {
-            required: true,
-            message: '请输入用户名',
-            trigger: 'blur'
-          },
-          {
-            min: 1,
-            max: 20,
-            message: '用户名长度在1-20之间'
-          }
-        ],
-        userId: [
-          {
-            required: true,
-            message: '请输入用户ID',
-            trigger: 'blur'
-          },
-          {
-            min: 1,
-            max: 6,
-            message: '用ID长度在1-6之间'
-          }
-        ],
-        mobile: [
-          {
-            required: true,
-            message: '请输入手机号',
-            trigger: 'blur'
-          },
-          {
-            min: 11,
-            max: 14,
-            message: '手机号长度不正确',
-            trigger: 'blur'
-          },
-          {
-            validator: checkMobile,
-            trigger: 'blur'
-          }
-        ]
-      }
+      editFrom: {}
+    }
+  },
+  watch: {
+    selectflightId(val) {
+      this.value = val
+      this.addFrom.flightId = val
+      this.editFrom.flightId = val
+      console.log(this.addFrom)
     }
   },
   created() {
+    this.quertInfo.flightId = this.$route.query.flightId
+    this.flightName = this.$route.query.flightName
+
     this.getUserList()
   },
   methods: {
+    async getAllHotelsMiniList() {
+      const { data: res } = await this.$http.get('/mg/getAllHotelsMini')
+      if (res.errno != '0') {
+        return this.$message.error(res.errmsg)
+      }
+      this.hotelList = res.data
+      console.log(res)
+    },
+
     async getUserList() {
-      const { data: res } = await this.$http.get('managers', {
+      const { data: res } = await this.$http.get('/mg/allUserByFlight', {
         params: this.quertInfo
       })
       if (res.errno != '0') {
@@ -239,49 +182,36 @@ export default {
       this.quertInfo.pageNum = newPage
       this.getUserList()
     },
-    // 监听mamager
-    async userManagerStateChanged(type, userInfo) {
-      var u_state = type == 1 ? userInfo.manager : userInfo.leader
 
-      const { data: res } = await this.$http.post('/manager/state', {
-        userId: userInfo.userId,
-        state: u_state,
-        type: type
-      })
-
-      if (res.errno != '0') {
-        if (type == 1) {
-          userInfo.manager = !userInfo.manager
-        } else {
-          userInfo.leader = !userInfo.leader
-        }
-
-        return this.$message.error(res.errmsg)
-      }
-      this.$message.success(res.errmsg)
-      console.log(res)
-    },
     addDialogClosed() {
       this.$refs.addFromRef.resetFields()
+      this.selectflightId = ''
     },
+
     // 展示用户编辑的对话框
     async showEditDialog(userId) {
+      this.getAllHotelsMiniList()
       console.log(userId)
       const { data: res } = await this.$http.get('/user', {
         params: { userId: userId }
       })
+      console.log(res)
       if (res.errno != '0') {
         return this.$message.error(res.errmsg)
       }
       this.editDialogVisible = true
-      this.editFrom = res.data
-      this.editFrom.userId = res.data.userId + ''
-      console.log(res)
+      var userInfo = res.data.userInfo
+      var flights = res.data.flights
+
+      this.editFrom = userInfo
+      this.editFrom.userId = userInfo.userId + ''
       this.$message.success(res.errmsg)
     },
+
     // 监听修改用户对话框关闭
     editDialogClosed() {
       this.$refs.editFromRef.resetFields()
+      this.selectflightId = ''
     },
     //  编辑用户
     editUserInfo() {
@@ -299,9 +229,9 @@ export default {
       })
     },
     // 根据id 删除用户信息
-    async removeUesrByUserId(userId) {
+    async removeUserFromHotel(userId) {
       const confirmResult = await this.$confirm(
-        '此操作将永久删除该用户, 是否继续?',
+        '此操作将永久从酒店中删除该用户, 是否继续?',
         '提示',
         {
           confirmButtonText: '确定',
@@ -314,10 +244,11 @@ export default {
         return this.$message.info('已取消删除')
       }
 
-      const { data: res } = await this.$http.post('/user/delete', {
-        userId: userId
+      const { data: res } = await this.$http.post('/mg/userflightdelete', {
+        userId: userId,
+        flightId: this.quertInfo.flightId
       })
-      if (res.errno != '0') {
+      if (res.errno !== '0') {
         return this.$message.error(res.errmsg)
       }
       this.editDialogVisible = false
@@ -329,4 +260,14 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.flightInfoDiv {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+
+  label:nth-child(1) {
+    font-weight: bold;
+    font-size: 14px;
+  }
+}
 </style>

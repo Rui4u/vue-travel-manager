@@ -37,8 +37,8 @@ export default {
   data() {
     return {
       loginForm: {
-        username: '沙帅',
-        password: '13552770003'
+        username: '管理员',
+        password: '13333333331'
       },
       loginFromRules: {
         // 验证用户名是否合法

@@ -31,15 +31,12 @@
       <el-table :data="allDaysTripsList" border stripe>
         <el-table-column type="expand">
           <template slot-scope="props">
-            <el-form label-position="left" inline class="demo-table-expand">
-              <el-form-item label="日期">
-                <span>{{ props.row.name }}</span>
+            <el-form label-position="left" inline class="demo-table-expand" v-for="(item, index) in props.row.routeList" :key="index">
+              <el-form-item label="">
+                <span>{{ item.date  + ' ' + item.time }}</span>
               </el-form-item>
-              <el-form-item label="时间">
-                <span>{{ props.row.shop }}</span>
-              </el-form-item>
-              <el-form-item label="活动描述">
-                <span>{{ props.row.id }}</span>
+              <el-form-item label="">
+                <span class="routeTitleSpan">{{ item.desc }}</span>
               </el-form-item>
             </el-form>
           </template>
@@ -52,7 +49,8 @@
         <el-table-column label="午餐" prop="lunch"></el-table-column>
         <el-table-column label="晚餐" prop="dinner"></el-table-column>
         <el-table-column label="日程描述图片" prop="daysPic"></el-table-column>
-        <el-table-column label="操作" width="180px">
+        <el-table-column label="所属团队" prop="tripName"></el-table-column>
+        <el-table-column label="操作" width="120px">
           <template slot-scope="scope">
             <!-- 修改 -->
             <el-button
@@ -68,9 +66,6 @@
               size="mini"
               @click="removeDaysTripById(scope.row.dayId)"
             ></el-button>
-            <el-tooltip effect="dark" content="分配角色" placement="top" :enterable="false">
-              <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
-            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
@@ -308,6 +303,7 @@ export default {
     selectGroupId(val) {
       this.value = this.demo
       this.addFrom.tripId = val
+      this.editFrom.tripId = val
       console.log(this.addFrom)
     }
   },
@@ -457,6 +453,9 @@ export default {
 .demo-table-expand .el-form-item {
   margin-right: 0;
   margin-bottom: 0;
-  width: 100%;
+  width: 30%;
+}
+.routeTitleSpan {
+  font-weight: bold;
 }
 </style>

@@ -43,7 +43,6 @@
             </div>
           </template>
         </el-table-column>
-
         <el-table-column label="操作" width="180px">
           <template slot-scope="scope">
             <!-- 修改 -->
@@ -60,8 +59,8 @@
               size="mini"
               @click="removeHotelById(scope.row.hotelId)"
             ></el-button>
-            <el-tooltip effect="dark" content="分配角色" placement="top" :enterable="false">
-              <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
+            <el-tooltip effect="dark" content="查看用户" placement="top" :enterable="false">
+              <el-button type="success" icon="el-icon-user" size="mini" @click="checkHotelAllUser(scope.row)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -224,6 +223,15 @@ export default {
     this.getAllHotelList()
   },
   methods: {
+    checkHotelAllUser(hotelInfo) {
+      this.$router.push({
+        path: '/hotelUsers',
+        query: {
+          hotelId: hotelInfo.hotelId,
+          hotelName: hotelInfo.hotelName
+        }
+      })
+    },
     async getAllHotelList() {
       const { data: res } = await this.$http.get('/mg/getAllHotels', {
         params: this.quertInfo
@@ -341,11 +349,10 @@ export default {
   display: flex;
   justify-content: flex-start;
   flex-direction: column;
-  
+
   label:nth-child(1) {
     font-weight: bold;
     font-size: 14px;
   }
 }
-
 </style>
