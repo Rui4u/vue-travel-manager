@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <el-col>
     <!-- 面包屑导航区 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
@@ -24,7 +24,12 @@
             </el-input>
           </div>
         </el-col>
+        <el-col :span="4">
+          <label style="height:40px;line-height:40px;margin-right:30px" for="">是否展示缩略图</label>
+            <el-switch v-model="showPicMini"></el-switch>
+        </el-col>
       </el-row>
+
       <!-- 用户列表区 -->
       <el-table :data="userList" border stripe @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55"></el-table-column>
@@ -32,6 +37,13 @@
         <el-table-column label="姓名" prop="name"></el-table-column>
         <el-table-column label="电话" prop="mobile"></el-table-column>
         <el-table-column label="用户id" prop="userId"></el-table-column>
+
+        <el-table-column label="图片缩略图" v-if="showPicMini" width="300px">
+          <template slot-scope="scope">
+            <img class="miniPic" :src="scope.row.clockInUrl" alt />
+          </template>
+        </el-table-column>
+
         <el-table-column label="图片链接" prop="clockInUrl"></el-table-column>
         <el-table-column label="通过审核">
           <template slot-scope="scope">
@@ -80,15 +92,14 @@
     <el-drawer title="我是标题" :visible.sync="drawer" :with-header="false">
       <div class="drawerDiv">
         <span>{{name}}</span>
-        <img class="picImg" src="http://dmimg.5054399.com/allimg/pkm/pk/22.jpg" />
+        <img class="picImg" :src="curreutUser.clockInUrl" />
 
         <span>通过审核</span>
         <el-switch v-model="curreutUser.isAudit" @change="userAuditStateChanged(curreutUser)"></el-switch>
         <span>审核状态</span>
         <label
           :class="curreutUser.auditStatus?'isAuditLabel':'notAuditLabel'"
-        >{{curreutUser.auditStatus ? "已审核": "未审核"}}</label
-        >
+        >{{curreutUser.auditStatus ? "已审核": "未审核"}}</label>
       </div>
     </el-drawer>
 
@@ -123,7 +134,7 @@
         <el-button type="primary" @click="editUserInfo">确 定</el-button>
       </span>
     </el-dialog>
-  </div>
+  </el-col>
 </template>
 
 <script>
@@ -160,7 +171,8 @@ export default {
         leader: false
       },
       //查询到的用户保存
-      editFrom: {}
+      editFrom: {},
+      showPicMini: true
     }
   },
   watch: {
@@ -337,5 +349,8 @@ export default {
   padding: 0px 50px;
   display: flex;
   flex-direction: column;
+}
+.miniPic {
+  width: 100%;
 }
 </style>
