@@ -33,7 +33,11 @@
         <el-table-column label="日期" prop="date"></el-table-column>
         <el-table-column label="时间" prop="time"></el-table-column>
         <el-table-column label="描述" prop="desc"></el-table-column>
-        <el-table-column label="所属日程ID" prop="dayId"></el-table-column>
+        <el-table-column label="所属日程">
+          <template slot-scope="scope">
+          <span v-for="(item,index) in scope.row.day" :key="index" >{{item.desc}}</span>
+          </template>
+        </el-table-column>
 
         <el-table-column label="操作" width="120px">
           <template slot-scope="scope">

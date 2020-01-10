@@ -28,7 +28,8 @@ import {
     Select,
     Option,
     Checkbox,
-    CheckboxGroup
+    CheckboxGroup,
+    Drawer
 
 } from 'element-ui'
 
@@ -60,6 +61,7 @@ Vue.use(Select)
 Vue.use(Option)
 Vue.use(Checkbox)
 Vue.use(CheckboxGroup)
+Vue.use(Drawer)
 
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm

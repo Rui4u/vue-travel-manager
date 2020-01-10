@@ -14,7 +14,8 @@ import GroupTrips from '../components/Trips/GroupTrips.vue'
 import Hotels from '../components/Hotels/Hotels.vue'
 import HotelNear from '../components/Hotels/HotelNear.vue'
 import HotelUsers from '../components/Hotels/HotelUsers.vue'
-
+import ClockIns from '../components/ClockIn/ClockIns.vue'
+import ClockInUser from '../components/ClockIn/ClockInUser.vue'
 
 Vue.use(VueRouter)
 
@@ -69,6 +70,12 @@ const routes = [{
             }, {
                 path: '/groupTrips',
                 component: GroupTrips
+            }, {
+                path: '/clockin',
+                component: ClockIns
+            }, {
+                path: '/clockinusers',
+                component: ClockInUser
             },
 
         ]
